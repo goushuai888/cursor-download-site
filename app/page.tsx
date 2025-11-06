@@ -83,8 +83,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Language Selector - Fixed bottom right */}
-        <div className="fixed bottom-8 right-8 z-40">
+        {/* Language Selector - Fixed top right */}
+        <div className="fixed top-8 right-8 z-40">
           <LanguageSelector
             currentLanguage={currentLanguage}
             onLanguageChange={setCurrentLanguage}

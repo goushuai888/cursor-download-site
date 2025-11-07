@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { Version, Language } from '@/types';
-import { fetchVersions } from '@/lib/versions';
+import { fetchVersions, getOfficialDownloadUrl, getAwsDownloadUrl } from '@/lib/versions';
+import { detectPlatform, getRecommendedPlatform, getArchDisplayName } from '@/lib/platform-detect';
 import VersionSelector from '@/components/VersionSelector';
 import DownloadSection from '@/components/DownloadSection';
 import LanguageSelector from '@/components/LanguageSelector';
+import { Download, Sparkles, Zap, Shield, Code2, Rocket } from 'lucide-react';
 
 export default function Home() {
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<Version | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState<Language>('zh');
   const [loading, setLoading] = useState(true);
+  const [detectedPlatform, setDetectedPlatform] = useState<ReturnType<typeof detectPlatform> | null>(null);
 
   useEffect(() => {
     async function loadVersions() {
@@ -33,79 +36,254 @@ export default function Home() {
     if (supportedLangs.includes(browserLang)) {
       setCurrentLanguage(browserLang);
     }
+
+    // Detect platform
+    const platform = detectPlatform();
+    setDetectedPlatform(platform);
   }, []);
+
+  // 获取快速下载链接
+  const getQuickDownloadUrl = () => {
+    if (!selectedVersion || !detectedPlatform) return '#';
+    
+    const platform = getRecommendedPlatform(detectedPlatform.os, detectedPlatform.arch);
+    
+    // 优先使用 AWS 下载
+    if (selectedVersion.downloadChannel.includes('aws')) {
+      const platformMap: Record<string, string> = {
+        'win32-x64': 'win32-x64-user-setup',
+        'win32-arm64': 'win32-arm64-user-setup',
+        'darwin-arm64': 'darwin-arm64',
+        'darwin-x64': 'darwin-x64',
+        'linux-x64': 'linux-x64',
+        'linux-arm64': 'linux-arm64',
+      };
+      return getAwsDownloadUrl(selectedVersion, platformMap[platform] || 'win32-x64-user-setup');
+    }
+    
+    // 回退到官方下载
+    const platformMap: Record<string, string> = {
+      'win32-x64': 'windows/nsis/x64',
+      'win32-arm64': 'windows/nsis/arm64',
+      'darwin-arm64': 'mac/installer/arm64',
+      'darwin-x64': 'mac/installer/x64',
+      'linux-x64': 'linux/appImage/x64',
+      'linux-arm64': 'linux/appImage/arm64',
+    };
+    return getOfficialDownloadUrl(selectedVersion, platformMap[platform] || 'windows/nsis/x64');
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"></div>
-          <p className="text-gray-600">加载版本数据中...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mb-4"></div>
+          <p className="text-gray-600 text-lg font-medium">Loading version data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">
-            Cursor Download Center
-          </h1>
-          <p className="text-xl text-gray-600">
-            The AI-first code editor - Download any version
-          </p>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Language Selector - Fixed top right */}
+      <div className="fixed top-8 right-8 z-50">
+        <LanguageSelector
+          currentLanguage={currentLanguage}
+          onLanguageChange={setCurrentLanguage}
+        />
+      </div>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 px-4">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Version Selector - 1/3 width on large screens */}
-          <div className="lg:col-span-1">
-            <VersionSelector
-              versions={versions}
-              selectedVersion={selectedVersion}
-              onSelectVersion={setSelectedVersion}
-              language={currentLanguage}
-            />
-          </div>
+        <div className="container mx-auto max-w-6xl relative z-10">
+          {/* Main Hero Content */}
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg mb-6 animate-bounce-subtle">
+              <Sparkles className="w-5 h-5 text-yellow-500" />
+              <span className="text-sm font-semibold text-gray-700">AI-First Code Editor</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
+              Download{' '}
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text animate-gradient">
+                Cursor
+              </span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+              The world&apos;s most advanced AI-powered code editor.
+              <br />
+              Write code faster with intelligent autocomplete and chat.
+            </p>
 
-          {/* Download Section - 2/3 width on large screens */}
-          <div className="lg:col-span-2">
-            {selectedVersion ? (
-              <DownloadSection version={selectedVersion} language={currentLanguage} />
-            ) : (
-              <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-                <p className="text-gray-500 text-lg">Select a version to download</p>
+            {/* Quick Download Button */}
+            {selectedVersion && detectedPlatform && detectedPlatform.os !== 'unknown' && (
+              <div className="mb-8 animate-slide-up">
+                <a
+                  href={getQuickDownloadUrl()}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 group"
+                >
+                  <Download className="w-6 h-6 group-hover:animate-bounce" />
+                  <span>
+                    Download for {detectedPlatform.displayName}
+                    {detectedPlatform.arch !== 'unknown' && (
+                      <span className="text-sm font-normal ml-2 opacity-90">
+                        ({getArchDisplayName(detectedPlatform.arch)})
+                      </span>
+                    )}
+                  </span>
+                </a>
+                <p className="text-sm text-gray-500 mt-3">
+                  Version {selectedVersion.version} • {selectedVersion.date}
+                </p>
               </div>
             )}
+
+            {/* Version Stats */}
+            <div className="flex justify-center gap-8 text-center">
+              <div className="animate-fade-in animation-delay-200">
+                <div className="text-3xl font-bold text-gray-900">{versions.length}+</div>
+                <div className="text-sm text-gray-600">Versions</div>
+              </div>
+              <div className="animate-fade-in animation-delay-400">
+                <div className="text-3xl font-bold text-gray-900">3</div>
+                <div className="text-sm text-gray-600">Platforms</div>
+              </div>
+              <div className="animate-fade-in animation-delay-600">
+                <div className="text-3xl font-bold text-gray-900">∞</div>
+                <div className="text-sm text-gray-600">Possibilities</div>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Language Selector - Fixed top right */}
-        <div className="fixed top-8 right-8 z-40">
-          <LanguageSelector
-            currentLanguage={currentLanguage}
-            onLanguageChange={setCurrentLanguage}
-          />
+      {/* Features Section */}
+      <section className="py-16 px-4 bg-white/50 backdrop-blur-sm">
+        <div className="container mx-auto max-w-6xl">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            Why Choose Cursor?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="group p-6 rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Zap className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Lightning Fast</h3>
+              <p className="text-gray-600">
+                AI-powered autocomplete that predicts your next move. Write code at the speed of thought.
+              </p>
+            </div>
+
+            <div className="group p-6 rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animation-delay-200">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Sparkles className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">AI Chat Built-in</h3>
+              <p className="text-gray-600">
+                Chat with AI directly in your editor. Get instant answers and code suggestions.
+              </p>
+            </div>
+
+            <div className="group p-6 rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animation-delay-400">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Shield className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Privacy First</h3>
+              <p className="text-gray-600">
+                Your code stays private. Choose your own AI model and keep your data secure.
+              </p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="text-center text-gray-500 text-sm mt-12 pb-8">
-          <p>
-            Made with ❤️ for Cursor users |{' '}
+      {/* Main Download Section */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Choose Your Version
+            </h2>
+            <p className="text-lg text-gray-600">
+              Select any version and download for your platform
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Version Selector - 1/4 width */}
+            <div className="lg:col-span-1">
+              <VersionSelector
+                versions={versions}
+                selectedVersion={selectedVersion}
+                onSelectVersion={setSelectedVersion}
+                language={currentLanguage}
+              />
+            </div>
+
+            {/* Download Section - 3/4 width */}
+            <div className="lg:col-span-3">
+              {selectedVersion ? (
+                <DownloadSection version={selectedVersion} language={currentLanguage} />
+              ) : (
+                <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+                  <Code2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">Select a version to download</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4 bg-white/50 backdrop-blur-sm border-t border-gray-200">
+        <div className="container mx-auto max-w-6xl text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Rocket className="w-5 h-5 text-primary-500" />
+            <span className="text-gray-900 font-semibold">Cursor Download Center</span>
+          </div>
+          <p className="text-gray-600 mb-4">
+            Made with ❤️ for Cursor users
+          </p>
+          <div className="flex justify-center gap-6 text-sm text-gray-500">
             <a
               href="https://cursor.sh"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary-500 hover:text-primary-600 transition-colors"
+              className="hover:text-primary-600 transition-colors"
             >
               Official Website
             </a>
-          </p>
-        </footer>
-      </div>
+            <span>•</span>
+            <a
+              href="https://docs.cursor.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary-600 transition-colors"
+            >
+              Documentation
+            </a>
+            <span>•</span>
+            <a
+              href="https://www.cursor.com/changelog"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary-600 transition-colors"
+            >
+              Changelog
+            </a>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

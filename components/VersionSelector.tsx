@@ -19,11 +19,13 @@ export default function VersionSelector({
   language,
 }: VersionSelectorProps) {
   const [search, setSearch] = React.useState('');
+  const [showAll, setShowAll] = React.useState(false);
   const [filteredVersions, setFilteredVersions] = React.useState<Version[]>(versions);
 
   React.useEffect(() => {
     if (!search) {
-      setFilteredVersions(versions);
+      // 如果没有搜索，默认只显示前10个版本
+      setFilteredVersions(showAll ? versions : versions.slice(0, 10));
     } else {
       const filtered = versions.filter(
         (v) =>
@@ -32,12 +34,12 @@ export default function VersionSelector({
       );
       setFilteredVersions(filtered);
     }
-  }, [search, versions]);
+  }, [search, versions, showAll]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 h-full flex flex-col">
+    <div className="bg-white rounded-2xl shadow-xl p-6 flex flex-col sticky top-8" style={{ maxHeight: 'calc(100vh - 4rem)' }}>
       {/* Header */}
-      <div className="mb-4">
+      <div className="mb-4 flex-shrink-0">
         <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
           <Tag className="w-5 h-5 text-primary-500" />
           {getTranslation('versionsTitle', language)}
@@ -48,7 +50,7 @@ export default function VersionSelector({
       </div>
 
       {/* Search Box */}
-      <div className="relative mb-4">
+      <div className="relative mb-4 flex-shrink-0">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type="text"
@@ -61,13 +63,13 @@ export default function VersionSelector({
 
       {/* Results count */}
       {search && (
-        <div className="mb-3 text-sm text-gray-600">
+        <div className="mb-3 text-sm text-gray-600 flex-shrink-0">
           {getTranslation('foundVersions', language)} {filteredVersions.length} {filteredVersions.length > 1 ? getTranslation('versionsCount', language).toLowerCase() : getTranslation('versionLabel', language).toLowerCase()}
         </div>
       )}
 
       {/* Version List */}
-      <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2">
+      <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2 min-h-0">
         {filteredVersions.map((version, index) => {
           const isSelected = selectedVersion?.version === version.version && 
                             selectedVersion?.buildId === version.buildId;
@@ -139,6 +141,18 @@ export default function VersionSelector({
           </div>
         )}
       </div>
+
+      {/* Show More Button */}
+      {!search && versions.length > 10 && (
+        <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="w-full px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors duration-200"
+          >
+            {showAll ? `↑ ${language === 'zh' ? '显示最新10个' : language === 'ja' ? '最新の10個を表示' : language === 'ko' ? '최신 10개 표시' : language === 'es' ? 'Mostrar 10 recientes' : language === 'fr' ? 'Afficher les 10 récents' : language === 'de' ? 'Zeige neueste 10' : 'Show Latest 10'}` : `↓ ${language === 'zh' ? `显示全部 ${versions.length} 个版本` : language === 'ja' ? `すべての ${versions.length} バージョンを表示` : language === 'ko' ? `모든 ${versions.length} 버전 표시` : language === 'es' ? `Mostrar todas las ${versions.length} versiones` : language === 'fr' ? `Afficher toutes les ${versions.length} versions` : language === 'de' ? `Alle ${versions.length} Versionen anzeigen` : `Show All ${versions.length} Versions`}`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

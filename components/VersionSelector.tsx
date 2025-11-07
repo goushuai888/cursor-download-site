@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Version, Language } from '@/types';
 import { getTranslation } from '@/lib/i18n';
-import { Search, Clock, Tag } from 'lucide-react';
+import { Search, Tag } from 'lucide-react';
 
 interface VersionSelectorProps {
   versions: Version[];
@@ -69,33 +69,33 @@ export default function VersionSelector({
       )}
 
       {/* Version List */}
-      <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2 min-h-0">
-        {filteredVersions.map((version, index) => {
-          const isSelected = selectedVersion?.version === version.version && 
-                            selectedVersion?.buildId === version.buildId;
-          const isLatest = index === 0;
-          
-          return (
-            <button
-              key={`${version.version}-${version.buildId}`}
-              onClick={() => onSelectVersion(version)}
-              className={`w-full text-left p-4 rounded-xl transition-all duration-300 group relative overflow-hidden ${
-                isSelected
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                  : 'bg-gray-50 hover:bg-gray-100 text-gray-800 hover:shadow-md hover:scale-102'
-              }`}
-            >
-              {/* Background effect on hover */}
-              {!isSelected && (
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              )}
-              
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="font-bold text-lg flex items-center gap-2">
-                    <span>{version.version}</span>
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-0">
+        <div className="space-y-1">
+          {filteredVersions.map((version, index) => {
+            const isSelected = selectedVersion?.version === version.version && 
+                              selectedVersion?.buildId === version.buildId;
+            const isLatest = index === 0 && !search;
+            
+            return (
+              <button
+                key={`${version.version}-${version.buildId}`}
+                onClick={() => onSelectVersion(version)}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 group relative ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                    : 'hover:bg-gray-100 text-gray-800'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  {/* Version Number */}
+                  <div className="flex items-center gap-2">
+                    <span className={`font-semibold text-base ${
+                      isSelected ? 'text-white' : 'text-gray-900'
+                    }`}>
+                      {version.version}
+                    </span>
                     {isLatest && (
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         isSelected 
                           ? 'bg-white/20 text-white' 
                           : 'bg-green-100 text-green-700'
@@ -104,34 +104,18 @@ export default function VersionSelector({
                       </span>
                     )}
                   </div>
+                  
+                  {/* Date */}
+                  <span className={`text-sm ${
+                    isSelected ? 'text-blue-100' : 'text-gray-500'
+                  }`}>
+                    {version.date}
+                  </span>
                 </div>
-                
-                <div className={`flex items-center gap-1.5 text-sm ${
-                  isSelected ? 'text-blue-100' : 'text-gray-500'
-                }`}>
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{version.date}</span>
-                </div>
-
-                {/* Download channels indicator */}
-                <div className="mt-2 flex gap-1">
-                  {version.downloadChannel.map((channel) => (
-                    <span
-                      key={channel}
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        isSelected
-                          ? 'bg-white/20 text-white'
-                          : 'bg-gray-200 text-gray-600'
-                      }`}
-                    >
-                      {channel}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
 
         {filteredVersions.length === 0 && (
           <div className="text-center py-12">

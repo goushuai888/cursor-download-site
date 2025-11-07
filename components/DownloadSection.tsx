@@ -56,6 +56,7 @@ function ArchCard({ archName, children, recommended }: ArchCardProps) {
         <div className="absolute -top-3 right-4">
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-full shadow-lg">
             <Sparkles className="w-3 h-3" />
+            {/* Recommended is a prop, will be handled with getTranslation in parent */}
             Recommended
           </span>
         </div>
@@ -78,9 +79,9 @@ export default function DownloadSection({ version, language }: DownloadSectionPr
   const hasChannel = (channel: string) => version.downloadChannel.includes(channel);
 
   const platforms = [
-    { id: 'windows' as Platform, name: 'Windows', icon: Monitor, color: 'blue' },
-    { id: 'mac' as Platform, name: 'macOS', icon: Apple, color: 'gray' },
-    { id: 'linux' as Platform, name: 'Linux', icon: HardDrive, color: 'yellow' },
+    { id: 'windows' as Platform, name: getTranslation('windows', language), icon: Monitor, color: 'blue' },
+    { id: 'mac' as Platform, name: getTranslation('macos', language), icon: Apple, color: 'gray' },
+    { id: 'linux' as Platform, name: getTranslation('linux', language), icon: HardDrive, color: 'yellow' },
   ];
 
   return (
@@ -90,16 +91,16 @@ export default function DownloadSection({ version, language }: DownloadSectionPr
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 className="text-3xl font-bold text-white mb-1">
-              Version {version.version}
+              {getTranslation('versionLabel', language)} {version.version}
             </h2>
             <p className="text-blue-100 text-sm">
-              Released: {version.date}
+              {getTranslation('releasedOn', language)}: {version.date}
             </p>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full">
             <CheckCircle className="w-5 h-5 text-white" />
             <span className="text-white text-sm font-semibold">
-              {version.downloadChannel.length} Download Sources
+              {version.downloadChannel.length} {getTranslation('downloadSources', language)}
             </span>
           </div>
         </div>
@@ -348,19 +349,19 @@ export default function DownloadSection({ version, language }: DownloadSectionPr
           <div className="flex flex-wrap gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-700"></div>
-              <span className="text-gray-600 font-medium">Official Download</span>
+              <span className="text-gray-600 font-medium">{getTranslation('officialSource', language)}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-700"></div>
-              <span className="text-gray-600 font-medium">ToDesktop Mirror</span>
+              <span className="text-gray-600 font-medium">{getTranslation('todeskMirror', language)}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-gradient-to-r from-orange-600 to-orange-700"></div>
-              <span className="text-gray-600 font-medium">AWS CDN</span>
+              <span className="text-gray-600 font-medium">{getTranslation('awsCdn', language)}</span>
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-4">
-            💡 Tip: Choose the download source closest to your region for faster speeds.
+            {getTranslation('downloadTip', language)}
           </p>
         </div>
       </div>

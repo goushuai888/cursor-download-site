@@ -40,10 +40,10 @@ export default function VersionSelector({
       <div className="mb-4">
         <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
           <Tag className="w-5 h-5 text-primary-500" />
-          Versions
+          {getTranslation('versionsTitle', language)}
         </h3>
         <p className="text-sm text-gray-500">
-          {versions.length} available versions
+          {versions.length} {getTranslation('availableVersions', language)}
         </p>
       </div>
 
@@ -62,7 +62,7 @@ export default function VersionSelector({
       {/* Results count */}
       {search && (
         <div className="mb-3 text-sm text-gray-600">
-          Found {filteredVersions.length} version{filteredVersions.length !== 1 ? 's' : ''}
+          {getTranslation('foundVersions', language)} {filteredVersions.length} {filteredVersions.length > 1 ? getTranslation('versionsCount', language).toLowerCase() : getTranslation('versionLabel', language).toLowerCase()}
         </div>
       )}
 
@@ -98,7 +98,7 @@ export default function VersionSelector({
                           ? 'bg-white/20 text-white' 
                           : 'bg-green-100 text-green-700'
                       }`}>
-                        Latest
+                        {getTranslation('latestBadge', language)}
                       </span>
                     )}
                   </div>
@@ -134,8 +134,8 @@ export default function VersionSelector({
         {filteredVersions.length === 0 && (
           <div className="text-center py-12">
             <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No versions found</p>
-            <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+            <p className="text-gray-500">{getTranslation('noVersionsFound', language)}</p>
+            <p className="text-sm text-gray-400 mt-1">{getTranslation('tryDifferentSearch', language)}</p>
           </div>
         )}
       </div>

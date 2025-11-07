@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Version, Language } from '@/types';
 import { fetchVersions, getOfficialDownloadUrl, getAwsDownloadUrl } from '@/lib/versions';
 import { detectPlatform, getRecommendedPlatform, getArchDisplayName } from '@/lib/platform-detect';
+import { getTranslation } from '@/lib/i18n';
 import VersionSelector from '@/components/VersionSelector';
 import DownloadSection from '@/components/DownloadSection';
 import LanguageSelector from '@/components/LanguageSelector';
@@ -78,7 +79,7 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mb-4"></div>
-          <p className="text-gray-600 text-lg font-medium">Loading version data...</p>
+          <p className="text-gray-600 text-lg font-medium">{getTranslation('loadingVersions', currentLanguage)}</p>
         </div>
       </div>
     );
@@ -108,20 +109,18 @@ export default function Home() {
           <div className="text-center mb-12 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg mb-6 animate-bounce-subtle">
               <Sparkles className="w-5 h-5 text-yellow-500" />
-              <span className="text-sm font-semibold text-gray-700">AI-First Code Editor</span>
+              <span className="text-sm font-semibold text-gray-700">{getTranslation('heroTag', currentLanguage)}</span>
             </div>
             
             <h1 className="text-6xl md:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
-              Download{' '}
+              {currentLanguage === 'zh' ? '下载' : currentLanguage === 'ja' ? 'ダウンロード' : currentLanguage === 'ko' ? '다운로드' : currentLanguage === 'es' ? 'Descargar' : currentLanguage === 'fr' ? 'Télécharger' : currentLanguage === 'de' ? 'Herunterladen' : 'Download'}{' '}
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text animate-gradient">
-                Cursor
+                {getTranslation('heroTitle', currentLanguage)}
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              The world&apos;s most advanced AI-powered code editor.
-              <br />
-              Write code faster with intelligent autocomplete and chat.
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed whitespace-pre-line">
+              {getTranslation('heroSubtitle', currentLanguage)}
             </p>
 
             {/* Quick Download Button */}
@@ -133,7 +132,7 @@ export default function Home() {
                 >
                   <Download className="w-6 h-6 group-hover:animate-bounce" />
                   <span>
-                    Download for {detectedPlatform.displayName}
+                    {getTranslation('downloadFor', currentLanguage)} {detectedPlatform.displayName}
                     {detectedPlatform.arch !== 'unknown' && (
                       <span className="text-sm font-normal ml-2 opacity-90">
                         ({getArchDisplayName(detectedPlatform.arch)})
@@ -142,7 +141,7 @@ export default function Home() {
                   </span>
                 </a>
                 <p className="text-sm text-gray-500 mt-3">
-                  Version {selectedVersion.version} • {selectedVersion.date}
+                  {getTranslation('versionLabel', currentLanguage)} {selectedVersion.version} • {selectedVersion.date}
                 </p>
               </div>
             )}
@@ -151,15 +150,15 @@ export default function Home() {
             <div className="flex justify-center gap-8 text-center">
               <div className="animate-fade-in animation-delay-200">
                 <div className="text-3xl font-bold text-gray-900">{versions.length}+</div>
-                <div className="text-sm text-gray-600">Versions</div>
+                <div className="text-sm text-gray-600">{getTranslation('versionsCount', currentLanguage)}</div>
               </div>
               <div className="animate-fade-in animation-delay-400">
                 <div className="text-3xl font-bold text-gray-900">3</div>
-                <div className="text-sm text-gray-600">Platforms</div>
+                <div className="text-sm text-gray-600">{getTranslation('platformsCount', currentLanguage)}</div>
               </div>
               <div className="animate-fade-in animation-delay-600">
                 <div className="text-3xl font-bold text-gray-900">∞</div>
-                <div className="text-sm text-gray-600">Possibilities</div>
+                <div className="text-sm text-gray-600">{getTranslation('possibilities', currentLanguage)}</div>
               </div>
             </div>
           </div>
@@ -170,16 +169,16 @@ export default function Home() {
       <section className="py-16 px-4 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Why Choose Cursor?
+            {getTranslation('featuresSectionTitle', currentLanguage)}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group p-6 rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Zap className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Lightning Fast</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('featureFastTitle', currentLanguage)}</h3>
               <p className="text-gray-600">
-                AI-powered autocomplete that predicts your next move. Write code at the speed of thought.
+                {getTranslation('featureFastDesc', currentLanguage)}
               </p>
             </div>
 
@@ -187,9 +186,9 @@ export default function Home() {
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Sparkles className="w-6 h-6 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">AI Chat Built-in</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('featureAiTitle', currentLanguage)}</h3>
               <p className="text-gray-600">
-                Chat with AI directly in your editor. Get instant answers and code suggestions.
+                {getTranslation('featureAiDesc', currentLanguage)}
               </p>
             </div>
 
@@ -197,9 +196,9 @@ export default function Home() {
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Shield className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Privacy First</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('featurePrivacyTitle', currentLanguage)}</h3>
               <p className="text-gray-600">
-                Your code stays private. Choose your own AI model and keep your data secure.
+                {getTranslation('featurePrivacyDesc', currentLanguage)}
               </p>
             </div>
           </div>
@@ -211,10 +210,10 @@ export default function Home() {
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Choose Your Version
+              {getTranslation('chooseVersionTitle', currentLanguage)}
             </h2>
             <p className="text-lg text-gray-600">
-              Select any version and download for your platform
+              {getTranslation('chooseVersionSubtitle', currentLanguage)}
             </p>
           </div>
 
@@ -236,7 +235,7 @@ export default function Home() {
               ) : (
                 <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
                   <Code2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg">Select a version to download</p>
+                  <p className="text-gray-500 text-lg">{getTranslation('selectVersion', currentLanguage)}</p>
                 </div>
               )}
             </div>
@@ -249,10 +248,10 @@ export default function Home() {
         <div className="container mx-auto max-w-6xl text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Rocket className="w-5 h-5 text-primary-500" />
-            <span className="text-gray-900 font-semibold">Cursor Download Center</span>
+            <span className="text-gray-900 font-semibold">{getTranslation('footerForUsers', currentLanguage)}</span>
           </div>
           <p className="text-gray-600 mb-4">
-            Made with ❤️ for Cursor users
+            {getTranslation('footerMadeWith', currentLanguage)}
           </p>
           <div className="flex justify-center gap-6 text-sm text-gray-500">
             <a
@@ -261,7 +260,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="hover:text-primary-600 transition-colors"
             >
-              Official Website
+              {getTranslation('officialWebsite', currentLanguage)}
             </a>
             <span>•</span>
             <a
@@ -270,7 +269,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="hover:text-primary-600 transition-colors"
             >
-              Documentation
+              {getTranslation('documentation', currentLanguage)}
             </a>
             <span>•</span>
             <a
@@ -279,7 +278,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="hover:text-primary-600 transition-colors"
             >
-              Changelog
+              {getTranslation('changelog', currentLanguage)}
             </a>
           </div>
         </div>

@@ -39,6 +39,7 @@ export function detectOS(): PlatformType {
 
 /**
  * 检测用户的CPU架构
+ * 注意：浏览器检测 Apple Silicon 并不完全可靠，建议让用户手动选择
  */
 export function detectArch(): ArchType {
   if (typeof window === 'undefined') return 'unknown';
@@ -50,11 +51,21 @@ export function detectArch(): ArchType {
   if (
     platform.includes('arm') || 
     userAgent.includes('arm') ||
-    platform.includes('aarch64') ||
-    // Apple Silicon (M1, M2, etc.)
-    (platform.includes('mac') && navigator.maxTouchPoints > 0)
+    platform.includes('aarch64')
   ) {
     return 'arm64';
+  }
+  
+  // 检测 Apple Silicon
+  // MacIntel 可能是 Intel 或 Apple Silicon（Rosetta）
+  // 所以 macOS 默认返回 unknown，让用户手动选择
+  if (platform.includes('mac')) {
+    // 尝试通过 userAgent 中的信息判断
+    if (userAgent.includes('arm64') || userAgent.includes('aarch64')) {
+      return 'arm64';
+    }
+    // 对于 Mac，返回 unknown 以触发手动选择
+    return 'unknown';
   }
   
   // 默认为 x64

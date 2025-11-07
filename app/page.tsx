@@ -16,6 +16,7 @@ export default function Home() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('zh');
   const [loading, setLoading] = useState(true);
   const [detectedPlatform, setDetectedPlatform] = useState<ReturnType<typeof detectPlatform> | null>(null);
+  const [manualArch, setManualArch] = useState<'x64' | 'arm64' | null>(null);
 
   useEffect(() => {
     async function loadVersions() {
@@ -47,7 +48,9 @@ export default function Home() {
   const getQuickDownloadUrl = () => {
     if (!selectedVersion || !detectedPlatform) return '#';
     
-    const platform = getRecommendedPlatform(detectedPlatform.os, detectedPlatform.arch);
+    // 使用手动选择的架构或检测到的架构
+    const arch = manualArch || detectedPlatform.arch;
+    const platform = getRecommendedPlatform(detectedPlatform.os, arch);
     
     // 优先使用 AWS 下载
     if (selectedVersion.downloadChannel.includes('aws')) {
@@ -126,23 +129,65 @@ export default function Home() {
             {/* Quick Download Button */}
             {selectedVersion && detectedPlatform && detectedPlatform.os !== 'unknown' && (
               <div className="mb-8 animate-slide-up">
-                <a
-                  href={getQuickDownloadUrl()}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 group"
-                >
-                  <Download className="w-6 h-6 group-hover:animate-bounce" />
-                  <span>
-                    {getTranslation('downloadFor', currentLanguage)} {detectedPlatform.displayName}
-                    {detectedPlatform.arch !== 'unknown' && (
-                      <span className="text-sm font-normal ml-2 opacity-90">
-                        ({getArchDisplayName(detectedPlatform.arch)})
+                {/* Architecture Selector for Mac */}
+                {detectedPlatform.os === 'mac' && detectedPlatform.arch === 'unknown' && (
+                  <div className="mb-4 flex justify-center gap-3">
+                    <button
+                      onClick={() => setManualArch('arm64')}
+                      className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                        manualArch === 'arm64'
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                      }`}
+                    >
+                      🍎 Apple Silicon (M1/M2/M3)
+                    </button>
+                    <button
+                      onClick={() => setManualArch('x64')}
+                      className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                        manualArch === 'x64'
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                      }`}
+                    >
+                      💻 Intel
+                    </button>
+                  </div>
+                )}
+                
+                {/* Download Button */}
+                {(detectedPlatform.arch !== 'unknown' || manualArch) && (
+                  <>
+                    <a
+                      href={getQuickDownloadUrl()}
+                      className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 group"
+                    >
+                      <Download className="w-6 h-6 group-hover:animate-bounce" />
+                      <span>
+                        {getTranslation('downloadFor', currentLanguage)} {detectedPlatform.displayName}
+                        <span className="text-sm font-normal ml-2 opacity-90">
+                          ({getArchDisplayName(manualArch || detectedPlatform.arch)})
+                        </span>
                       </span>
-                    )}
-                  </span>
-                </a>
-                <p className="text-sm text-gray-500 mt-3">
-                  {getTranslation('versionLabel', currentLanguage)} {selectedVersion.version} • {selectedVersion.date}
-                </p>
+                    </a>
+                    <p className="text-sm text-gray-500 mt-3">
+                      {getTranslation('versionLabel', currentLanguage)} {selectedVersion.version} • {selectedVersion.date}
+                    </p>
+                  </>
+                )}
+                
+                {/* Prompt to select architecture */}
+                {detectedPlatform.arch === 'unknown' && !manualArch && (
+                  <p className="text-sm text-gray-600 mt-3">
+                    {currentLanguage === 'zh' ? '👆 请选择您的 Mac 芯片类型' :
+                     currentLanguage === 'ja' ? '👆 Mac チップの種類を選択してください' :
+                     currentLanguage === 'ko' ? '👆 Mac 칩 유형을 선택하세요' :
+                     currentLanguage === 'es' ? '👆 Seleccione el tipo de chip de su Mac' :
+                     currentLanguage === 'fr' ? '👆 Sélectionnez le type de puce de votre Mac' :
+                     currentLanguage === 'de' ? '👆 Wählen Sie Ihren Mac-Chip-Typ' :
+                     '👆 Please select your Mac chip type'}
+                  </p>
+                )}
               </div>
             )}
 

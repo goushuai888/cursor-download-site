@@ -131,27 +131,51 @@ export default function Home() {
               <div className="mb-8 animate-slide-up">
                 {/* Architecture Selector for Mac */}
                 {detectedPlatform.os === 'mac' && detectedPlatform.arch === 'unknown' && (
-                  <div className="mb-4 flex justify-center gap-3">
-                    <button
-                      onClick={() => setManualArch('arm64')}
-                      className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                        manualArch === 'arm64'
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
-                      }`}
-                    >
-                      🍎 Apple Silicon (M1/M2/M3)
-                    </button>
-                    <button
-                      onClick={() => setManualArch('x64')}
-                      className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                        manualArch === 'x64'
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
-                      }`}
-                    >
-                      💻 Intel
-                    </button>
+                  <div className="mb-4 relative">
+                    {/* Bubble Tooltip */}
+                    {!manualArch && (
+                      <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-10 animate-bounce-subtle">
+                        <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-2xl shadow-xl">
+                          <p className="text-sm font-semibold whitespace-nowrap">
+                            {currentLanguage === 'zh' ? '👇 请选择您的 Mac 芯片类型' :
+                             currentLanguage === 'ja' ? '👇 Mac チップの種類を選択してください' :
+                             currentLanguage === 'ko' ? '👇 Mac 칩 유형을 선택하세요' :
+                             currentLanguage === 'es' ? '👇 Seleccione el tipo de chip de su Mac' :
+                             currentLanguage === 'fr' ? '👇 Sélectionnez le type de puce de votre Mac' :
+                             currentLanguage === 'de' ? '👇 Wählen Sie Ihren Mac-Chip-Typ' :
+                             '👇 Please select your Mac chip type'}
+                          </p>
+                          {/* Arrow pointing down */}
+                          <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-2">
+                            <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-purple-600"></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Buttons */}
+                    <div className="flex justify-center gap-3">
+                      <button
+                        onClick={() => setManualArch('arm64')}
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                          manualArch === 'arm64'
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                            : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                        }`}
+                      >
+                        🍎 Apple Silicon (M1/M2/M3)
+                      </button>
+                      <button
+                        onClick={() => setManualArch('x64')}
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                          manualArch === 'x64'
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                            : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                        }`}
+                      >
+                        💻 Intel
+                      </button>
+                    </div>
                   </div>
                 )}
                 
@@ -174,19 +198,6 @@ export default function Home() {
                       {getTranslation('versionLabel', currentLanguage)} {selectedVersion.version} • {selectedVersion.date}
                     </p>
                   </>
-                )}
-                
-                {/* Prompt to select architecture */}
-                {detectedPlatform.arch === 'unknown' && !manualArch && (
-                  <p className="text-sm text-gray-600 mt-3">
-                    {currentLanguage === 'zh' ? '👆 请选择您的 Mac 芯片类型' :
-                     currentLanguage === 'ja' ? '👆 Mac チップの種類を選択してください' :
-                     currentLanguage === 'ko' ? '👆 Mac 칩 유형을 선택하세요' :
-                     currentLanguage === 'es' ? '👆 Seleccione el tipo de chip de su Mac' :
-                     currentLanguage === 'fr' ? '👆 Sélectionnez le type de puce de votre Mac' :
-                     currentLanguage === 'de' ? '👆 Wählen Sie Ihren Mac-Chip-Typ' :
-                     '👆 Please select your Mac chip type'}
-                  </p>
                 )}
               </div>
             )}

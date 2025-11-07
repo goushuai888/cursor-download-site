@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Version, Language } from '@/types';
 import { getTranslation } from '@/lib/i18n';
+import { trackEvent } from '@/components/BaiduAnalytics';
 import {
   getOfficialDownloadUrl,
   getTodeskDownloadUrl,
@@ -30,6 +31,9 @@ function DownloadButton({ href, label, className, icon }: DownloadButtonProps) {
   return (
     <a
       href={href}
+      onClick={() => {
+        trackEvent('Download', 'Click', label);
+      }}
       className={`group relative inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 ${className} overflow-hidden`}
       target="_blank"
       rel="noopener noreferrer"

@@ -5,6 +5,7 @@ import { Version, Language } from '@/types';
 import { fetchVersions, getOfficialDownloadUrl, getAwsDownloadUrl } from '@/lib/versions';
 import { detectPlatform, getRecommendedPlatform, getArchDisplayName } from '@/lib/platform-detect';
 import { getTranslation } from '@/lib/i18n';
+import { trackEvent } from '@/components/BaiduAnalytics';
 import VersionSelector from '@/components/VersionSelector';
 import DownloadSection from '@/components/DownloadSection';
 import LanguageSelector from '@/components/LanguageSelector';
@@ -156,7 +157,10 @@ export default function Home() {
                     {/* Buttons */}
                     <div className="flex justify-center gap-3">
                       <button
-                        onClick={() => setManualArch('arm64')}
+                        onClick={() => {
+                          setManualArch('arm64');
+                          trackEvent('Architecture', 'Select', 'Apple Silicon (ARM64)');
+                        }}
                         className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
                           manualArch === 'arm64'
                             ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
@@ -166,7 +170,10 @@ export default function Home() {
                         🍎 Apple Silicon (M1/M2/M3)
                       </button>
                       <button
-                        onClick={() => setManualArch('x64')}
+                        onClick={() => {
+                          setManualArch('x64');
+                          trackEvent('Architecture', 'Select', 'Intel (x64)');
+                        }}
                         className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
                           manualArch === 'x64'
                             ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
@@ -184,6 +191,10 @@ export default function Home() {
                   <>
                     <a
                       href={getQuickDownloadUrl()}
+                      onClick={() => {
+                        const arch = manualArch || detectedPlatform.arch;
+                        trackEvent('Download', 'Quick Download', `${detectedPlatform.os}-${arch}`, selectedVersion ? parseFloat(selectedVersion.version) : 0);
+                      }}
                       className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 group"
                     >
                       <Download className="w-6 h-6 group-hover:animate-bounce" />

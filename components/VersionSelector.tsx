@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Version, Language } from '@/types';
 import { getTranslation } from '@/lib/i18n';
+import { trackEvent } from '@/components/BaiduAnalytics';
 import { Search, Tag } from 'lucide-react';
 
 interface VersionSelectorProps {
@@ -77,10 +78,13 @@ export default function VersionSelector({
             const isLatest = index === 0 && !search;
             
             return (
-              <button
-                key={`${version.version}-${version.buildId}`}
-                onClick={() => onSelectVersion(version)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 group relative ${
+                      <button
+                        key={`${version.version}-${version.buildId}`}
+                        onClick={() => {
+                          onSelectVersion(version);
+                          trackEvent('Version', 'Select', version.version, parseFloat(version.version));
+                        }}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 group relative ${
                   isSelected
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
                     : 'hover:bg-gray-100 text-gray-800'
